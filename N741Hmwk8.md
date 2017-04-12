@@ -39,11 +39,7 @@ The combined dataset has 699 cases (rows). However, 16 cases were missing values
 # from tidyverse - use readr
 # to read in the comma delimited dataset
 library(readr)
-```
 
-    ## Warning: package 'readr' was built under R version 3.3.3
-
-``` r
 # raw data does not have column names
 bcdat <- read_csv("breast-cancer-wisconsin.data",
                   col_names=FALSE)
@@ -57,12 +53,22 @@ bcdat <- read_csv("breast-cancer-wisconsin.data",
     ##   X4 = col_integer(),
     ##   X5 = col_integer(),
     ##   X6 = col_integer(),
-    ##   X7 = col_character(),
+    ##   X7 = col_integer(),
     ##   X8 = col_integer(),
     ##   X9 = col_integer(),
     ##   X10 = col_integer(),
     ##   X11 = col_integer()
     ## )
+
+    ## Warning: 16 parsing failures.
+    ## row col   expected actual
+    ##  24  X7 an integer      ?
+    ##  41  X7 an integer      ?
+    ## 140  X7 an integer      ?
+    ## 146  X7 an integer      ?
+    ## 159  X7 an integer      ?
+    ## ... ... .......... ......
+    ## See problems(...) for more details.
 
 ``` r
 # add variable names
@@ -91,12 +97,7 @@ library(dplyr)
 bcdat <- bcdat %>%
   mutate(barenucfix = ifelse(barenuclei=="?",NA,
                               as.numeric(barenuclei)))
-```
 
-    ## Warning in ifelse(c("1", "10", "2", "4", "1", "10", "10", "1", "1", "1", :
-    ## NAs introduced by coercion
-
-``` r
 # keep the main 11 variables
 bcdat <- bcdat %>%
   select(idnum,clumpthickness,uniformcellsize,uniformcellshape,
@@ -288,8 +289,247 @@ bcdat <- bcdatBenign
 
 # redo for malignant ==================
 bcdat <- bcdatMalignant
-# run steps above
 ```
+
+############################################### 
+
+1. Benign, PCA
+--------------
+
+``` r
+pr.out <- prcomp(bcdatBenign[,2:10], scale=TRUE)
+summary(pr.out)
+```
+
+    ## Importance of components:
+    ##                           PC1    PC2    PC3     PC4     PC5     PC6
+    ## Standard deviation     1.7887 1.0405 0.9930 0.92684 0.91865 0.85577
+    ## Proportion of Variance 0.3555 0.1203 0.1096 0.09545 0.09377 0.08137
+    ## Cumulative Proportion  0.3555 0.4758 0.5854 0.68081 0.77458 0.85595
+    ##                            PC7     PC8     PC9
+    ## Standard deviation     0.72971 0.69343 0.53208
+    ## Proportion of Variance 0.05916 0.05343 0.03146
+    ## Cumulative Proportion  0.91512 0.96854 1.00000
+
+2. Benign, plots of the variance and PVE
+----------------------------------------
+
+### Plot of the Variances of Each PC
+
+``` r
+plot(pr.out)
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-10-1.png)
+
+### Benign, plot of the PVE and Cumulative PVE of each PC
+
+``` r
+pve = 100*pr.out$sdev^2/sum(pr.out$sdev^2)
+pve
+```
+
+    ## [1] 35.550174 12.029083 10.957095  9.544841  9.376951  8.137200  5.916378
+    ## [8]  5.342677  3.145601
+
+``` r
+plot(pve, type = "o", ylab = "Cumulative PVE", xlab = "Principal Component", col="blue")
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-11-1.png)
+
+``` r
+plot(cumsum(pve), type = "o", ylab = "Cumulative PVE", xlab = "Principal Component", col="brown3")
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-11-2.png)
+
+3. Benign, "loadings plot" of the variables
+-------------------------------------------
+
+``` r
+pr.out$rotation
+```
+
+    ##                          PC1          PC2         PC3          PC4
+    ## clumpthickness   -0.24011520 -0.253256825  0.62484649 -0.199323941
+    ## uniformcellsize  -0.45864830 -0.033204671 -0.02085097 -0.330649289
+    ## uniformcellshape -0.41582963 -0.112167262  0.09869789 -0.447953433
+    ## marginaladhesion -0.29961721  0.231565724  0.37743125  0.606952624
+    ## singlecellsize   -0.35673183 -0.007389172 -0.04352450  0.279971872
+    ## barenucfix       -0.36072777  0.311655317 -0.05724935  0.250068883
+    ## blandchromatin   -0.23796491 -0.270255849 -0.60100673  0.128887383
+    ## normalnucleoli   -0.39235641 -0.058082399 -0.28511559 -0.009877498
+    ## mitoses          -0.03672453  0.833641905 -0.09625297 -0.352503945
+    ##                          PC5        PC6         PC7         PC8
+    ## clumpthickness    0.51477010 -0.1751030  0.38404427  0.06874853
+    ## uniformcellsize  -0.18213500  0.1864954 -0.13495407 -0.04930335
+    ## uniformcellshape -0.21954352  0.2370728 -0.26160782 -0.23353820
+    ## marginaladhesion  0.19804701  0.1093704 -0.52767057 -0.12507351
+    ## singlecellsize   -0.38970577 -0.5702306  0.33220762 -0.45240165
+    ## barenucfix       -0.13507321  0.4982717  0.55467287  0.34056137
+    ## blandchromatin    0.58710974  0.1690343  0.06913716 -0.33732847
+    ## normalnucleoli    0.07300474 -0.4678173 -0.25315695  0.67741729
+    ## mitoses           0.30704026 -0.2133771  0.02302674 -0.17124652
+    ##                          PC9
+    ## clumpthickness   -0.01329810
+    ## uniformcellsize  -0.76823067
+    ## uniformcellshape  0.61377445
+    ## marginaladhesion -0.02229120
+    ## singlecellsize    0.01861508
+    ## barenucfix        0.12950293
+    ## blandchromatin    0.02593358
+    ## normalnucleoli    0.11886569
+    ## mitoses           0.02257633
+
+``` r
+plot(pr.out$rotation[,1],pr.out$rotation[,2],
+     xlim=c(-0.5,0.1),ylim=c(-0.5,1),
+     cex=2, pch=19,
+     xlab = "Principal Component 1",
+     ylab = "Principal Component 2",
+     main = "Loadings Plot for PC 1 and 2")
+par(xpd=FALSE)
+abline(h=0, col="red")
+abline(v=0, col="red")
+text(pr.out$rotation[,1],pr.out$rotation[,2],
+     labels = rownames(pr.out$rotation),
+     pos = 3)
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-12-1.png)
+
+4. Benign, plot on 1st 2 PCs
+----------------------------
+
+``` r
+plot(pr.out$x[,1],pr.out$x[,2], 
+     col = bcdatBenign$class,
+     xlab = "Principal Component 1",
+     ylab = "Principal Component 2",
+     main = "Scores Plot on PC 1 and 2")
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-13-1.png)
+
+1. Malignant, PCA
+-----------------
+
+``` r
+pr.out <- prcomp(bcdatMalignant[,2:10], scale=TRUE)
+summary(pr.out)
+```
+
+    ## Importance of components:
+    ##                           PC1    PC2    PC3    PC4    PC5     PC6     PC7
+    ## Standard deviation     1.6881 1.1405 1.0114 0.9710 0.8955 0.82523 0.79132
+    ## Proportion of Variance 0.3166 0.1445 0.1137 0.1048 0.0891 0.07567 0.06958
+    ## Cumulative Proportion  0.3166 0.4611 0.5748 0.6795 0.7687 0.84432 0.91389
+    ##                           PC8    PC9
+    ## Standard deviation     0.7181 0.5092
+    ## Proportion of Variance 0.0573 0.0288
+    ## Cumulative Proportion  0.9712 1.0000
+
+2. Benign, plots of the variance and PVE
+----------------------------------------
+
+### Plot of the Variances of Each PC
+
+``` r
+plot(pr.out)
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-15-1.png)
+
+### Benign, plot of the PVE and Cumulative PVE of each PC
+
+``` r
+pve = 100*pr.out$sdev^2/sum(pr.out$sdev^2)
+pve
+```
+
+    ## [1] 31.661845 14.452164 11.364996 10.475550  8.910443  7.566671  6.957691
+    ## [8]  5.730245  2.880396
+
+``` r
+plot(pve, type = "o", ylab = "Cumulative PVE", xlab = "Principal Component", col="blue")
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-16-1.png)
+
+``` r
+plot(cumsum(pve), type = "o", ylab = "Cumulative PVE", xlab = "Principal Component", col="brown3")
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-16-2.png)
+
+3. Benign, "loadings plot" of the variables
+-------------------------------------------
+
+``` r
+pr.out$rotation
+```
+
+    ##                          PC1         PC2         PC3         PC4
+    ## clumpthickness   -0.04423311  0.47453175 -0.72050432  0.03375094
+    ## uniformcellsize  -0.49200997  0.09144594 -0.10713144 -0.23385625
+    ## uniformcellshape -0.46669310  0.06386848 -0.19774730 -0.24213467
+    ## marginaladhesion -0.31654337 -0.44402770  0.10728697  0.25657447
+    ## singlecellsize   -0.38065450  0.18190583  0.12106578  0.20864693
+    ## barenucfix       -0.03443192 -0.57557062 -0.49808880  0.35266296
+    ## blandchromatin   -0.34513808 -0.32908090 -0.09767689 -0.30475120
+    ## normalnucleoli   -0.31497084  0.09772667  0.36209294 -0.12934244
+    ## mitoses          -0.27121420  0.28809974  0.12401793  0.73634571
+    ##                          PC5         PC6         PC7         PC8
+    ## clumpthickness   -0.33747692  0.19363953  0.06219100  0.31186804
+    ## uniformcellsize   0.25878373  0.05030229 -0.22115522 -0.11677498
+    ## uniformcellshape  0.20325032 -0.13515456 -0.40047847 -0.22875166
+    ## marginaladhesion -0.08457519  0.56327695 -0.28239595  0.46360581
+    ## singlecellsize    0.44399919 -0.28036154  0.49840771  0.47849939
+    ## barenucfix       -0.04647075 -0.52478456 -0.04208568 -0.03054114
+    ## blandchromatin   -0.26382710  0.24258816  0.66277346 -0.31133678
+    ## normalnucleoli   -0.69424240 -0.44416638 -0.13065490  0.20939361
+    ## mitoses          -0.14072880  0.11954714  0.02390310 -0.50117220
+    ##                           PC9
+    ## clumpthickness    0.009006567
+    ## uniformcellsize  -0.742531194
+    ## uniformcellshape  0.638825011
+    ## marginaladhesion  0.078657744
+    ## singlecellsize    0.103499670
+    ## barenucfix       -0.121683838
+    ## blandchromatin    0.074285922
+    ## normalnucleoli   -0.056828116
+    ## mitoses          -0.003860273
+
+``` r
+plot(pr.out$rotation[,1],pr.out$rotation[,2],
+     xlim=c(-0.5,0.1),ylim=c(-0.5,1),
+     cex=2, pch=19,
+     xlab = "Principal Component 1",
+     ylab = "Principal Component 2",
+     main = "Loadings Plot for PC 1 and 2")
+par(xpd=FALSE)
+abline(h=0, col="red")
+abline(v=0, col="red")
+text(pr.out$rotation[,1],pr.out$rotation[,2],
+     labels = rownames(pr.out$rotation),
+     pos = 3)
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-17-1.png)
+
+4. Benign, plot on 1st 2 PCs
+----------------------------
+
+``` r
+plot(pr.out$x[,1],pr.out$x[,2], 
+     col = bcdatMalignant$class,
+     xlab = "Principal Component 1",
+     ylab = "Principal Component 2",
+     main = "Scores Plot on PC 1 and 2")
+```
+
+![](N741Hmwk8_files/figure-markdown_github/unnamed-chunk-18-1.png)
 
 1.  In the overall dataset, when looking at the loadings plot, which variables cluster together? which variables do not lie with that cluster?
 
