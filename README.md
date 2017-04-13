@@ -1,5 +1,10 @@
 # N741hmwk8
+
 N741 Homework 8
+
+ANSWER KEY NOW (04/13/2017) POSTED AT 
+
+-----
 
 Please use this Github repository for N741 Homework 8. Follow the steps and instructions below - which are also contained in the `N741Hmwk8.XXX` files.
 
