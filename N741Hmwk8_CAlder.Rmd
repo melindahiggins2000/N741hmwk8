@@ -1,7 +1,7 @@
 ---
 title: "N741 Homework 8"
-author: "Melinda K. Higgins, PhD."
-date: "April 4, 2017"
+author: "Craig Alder"
+date: "April 12, 2017"
 output:
   github_document: default
   html_document: default
@@ -255,7 +255,7 @@ pr.out <- prcomp(bcdatMalignant[,2:10], scale=TRUE)
 summary(pr.out)
 ```
 
-## 2. Benign, plots of the variance and PVE 
+## 2. Malignant, plots of the variance and PVE 
 
 ### Plot of the Variances of Each PC
 
@@ -263,7 +263,7 @@ summary(pr.out)
 plot(pr.out)
 ```
 
-### Benign, plot of the PVE and Cumulative PVE of each PC
+### Malignant, plot of the PVE and Cumulative PVE of each PC
 
 ```{r}
 pve = 100*pr.out$sdev^2/sum(pr.out$sdev^2)
@@ -273,7 +273,7 @@ plot(cumsum(pve), type = "o", ylab = "Cumulative PVE", xlab = "Principal Compone
 
 ```
 
-## 3. Benign, "loadings plot" of the variables
+## 3. Malignant, "loadings plot" of the variables
 
 ```{r}
 pr.out$rotation
@@ -291,7 +291,7 @@ text(pr.out$rotation[,1],pr.out$rotation[,2],
      pos = 3)
 ```
 
-## 4. Benign, plot on 1st 2 PCs
+## 4. Malignant, plot on 1st 2 PCs
 
 ```{r}
 plot(pr.out$x[,1],pr.out$x[,2], 
@@ -303,10 +303,42 @@ plot(pr.out$x[,1],pr.out$x[,2],
 
 2. In the overall dataset, when looking at the loadings plot, which variables cluster together? which variables do not lie with that cluster?
 
+In PC1, the weights are all similar, indicating they all hang together. The mitoses variable has the lowest weight, but it does not seem too extreme.
+
+In PC2 Mitoses takes up most of the component weight at .91. Barenucfix and blandchromatin are closest with weights of -.26 and -.23 respectively. Uniformcellsize, uniformcellshape, and normalnucleoli all have very low weights. 
+
+In PC3 Clumpthickness takes up most of the weight at .86. Marginaladhesion is also substantive with a weight of .41. Uniformcellsize and uniformcellshape, and barenucfix all have extremely low weights.
+
+These first three factors seem to show the general split. 
+
 3. How do the variable clusters seen in the loading plots for the Benign data subset and Malignant subset differ? and how are they similar if at all?
+
+Benign
+
+-The first factor shows that, unlike the complete dataset, not all variables hang together. Mitoses has a very low weight compared to the other variables at -.04 (most hang out between -.35 and -.45). Clumpthickness and blandchromatin are also lower than the rest, though not too far off at .24 for each.
+-The second factor is similar to the second for the entire dataset in that mitoses is by far the most heavily weighted at .83. Also, blandchromatin and barenucfix are weighted the next highest at .27 and .31 respectively, just as in the entire dataset.
+-Blandchromatin and, unlike in the entire dataset, clumpthickness have the highest weights in PC3 at .6 and .62 respectively. 
+
+Malignant
+
+-The first factor shows that, unlike the complete dataset, not all variables hang together. Clumpthickness and barenucfix have very low weights compared to the other variables at -.04 and -.03 respectively. Clumpthickness was a little bit lower, but not extremely lower, in the benign loadings. 
+-The second factor is different than both the benign and combined datasets. Barenucfix has the highest weight at -.57 while clumpthickness, marginal adhesion, blandchromatin, and mitoses all have substantial loadings (mitosis the smallest of this group at .29). Uniformcellsize, uniformcellshape, and normalnucleoli all have very small weights.
+-Clumpthickness has a high weight for PC3 at -.72. Barenucfix, normalnucleoli, and mitosis also have substantial weights.
 
 4. Is using 2 principal components reasonable for summarizing the variability seen in this Breast Cancer dataset with 9 measurements? Explain your reasoning for (a) the overall dataset, (b) the Benign subset and (c) the Malignant subset
 
+2 principal components is reasonable for the overall dataset and the malignant subset, but three seems more reasonable for the benign subset.
+
+Malignant subset: Each variable has a weight above .3 in one of the two components. Mitoses is the one exception with weights of -.27 in the first and .29 in the second, which seems reasonable for the second.
+
+Benign subset: Each of the variabls has a weight of .3 or above in the first two components except blandchromatin and clump thickness, which max out at -.25 and -.27 respectively. In PC 3, they both have weights above .6.
+
+Full dataset: Each variable has a weight of .3 or higher in one of the first two components.
+
 5. While PCA is an unsupervised data analysis method (i.e. no "target" class information is used in the analysis), do you think the 2 PCs extracted do a good job of helping to distinguish Benign cases from Malignant cases (i.e. look back at the overall dataset Scores Plot). Explain your rationale.
 
+There is very clearly a dense grouping of malignant cases in the plot, with very little benign cases mixed in, indicating the two PCs do a good job distinguishing cases.
+
 6. Please save your RMD to a Github repository. Submit the PDF report for Homework 8 to CANVAS and include a link to your Homework 8 Github Repository.
+
+Github repository: [https://github.com/craigalder/N741hmwk8](https://github.com/craigalder/N741hmwk8)
